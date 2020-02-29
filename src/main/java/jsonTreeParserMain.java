@@ -1,7 +1,9 @@
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -10,7 +12,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeType;
 
 public class jsonTreeParserMain {
 	final String jsonFile = "node_to_json.json";
-	final static String children = "children";
 	final static String name = "name";
 
 	public static void main(String[] args) throws JsonProcessingException, IOException {
@@ -34,16 +35,17 @@ public class jsonTreeParserMain {
 		        	  nodes+=countNodes(jsonArrayNode);
 		      }	    	  
 	      } 
-	      if (node.getNodeType() == JsonNodeType.OBJECT) {		     	    
-		      if (node.get(children)!=null) {
-		    	  nodes=countNodes(node.get(children));
+	      if (node.getNodeType() == JsonNodeType.OBJECT) {		  
+		      JsonNode children = getChildren(node);
+		      if (children!=null) {
+		    	  nodes=countNodes(children);
 	          }	  	      
 	      }
 	      return nodes;	      
 	  }	 
 	  
 	  private static int countNodesUnderName(JsonNode root, String name) {
-		return countNodesUnderName(root,name,false);
+		return countNodesUnderName(root,name,false) - 1;
 	  }	
 	
 	  private static int countNodesUnderName(JsonNode node,String fieldName,boolean count) {
@@ -59,8 +61,9 @@ public class jsonTreeParserMain {
 		      if(count == false) {
 		    	  count=fieldName.equals(node.get(name).asText());
 		      }		      
-		      if (node.get(children)!=null) {
-		    	  nodes=countNodesUnderName(node.get(children),fieldName,count);
+		      JsonNode children = getChildren(node);
+		      if (children!=null) {
+		    	  nodes=countNodesUnderName(children,fieldName,count);
 	          }	  	      
 	      }	      	      
 	      return nodes;
@@ -90,11 +93,21 @@ public class jsonTreeParserMain {
 			    	  hashMap.put(value, count + 1);		    		  
 		    	  }	    		      	  
 		    	  
-		          if (node.get(children)!=null) {
-		        	  countNodesFieldsFrequencyHelper(node.get(children),hashMap,field);
-		          }	    	  	    	  
-			    } 	      
+	        	countNodesFieldsFrequencyHelper(getChildren(node),hashMap,field);
+
+			   } 	      
 		      return hashMap;
+		}
+
+		private static JsonNode getChildren(JsonNode node) {
+    	    Iterator<Entry<String, JsonNode>> fields = node.fields();
+    	    while (fields.hasNext()) {
+    	        Entry<String, JsonNode> jsonField = fields.next();
+    	        if(jsonField.getValue().getNodeType() == JsonNodeType.ARRAY) {
+    	        	return jsonField.getValue();
+    	        }
+    	   	}		    	     	  	    	  			
+			return null;
 		}
 	  
 }
