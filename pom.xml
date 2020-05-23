@@ -11,4 +11,24 @@
   		<version>2.9.5</version>
   	</dependency>
   </dependencies>
+    <build>
+    <plugins>
+    <plugin>
+        <version>3.6.1</version>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+            <source>11</source>
+            <target>11</target>
+        </configuration>
+    </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+                <source>8</source>
+                <target>8</target>
+            </configuration>
+        </plugin>
+    </plugins>
+    </build>
 </project>

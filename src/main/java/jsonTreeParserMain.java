@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeType;
 
 public class jsonTreeParserMain {
 	final String jsonFile = "node_to_json.json";
-	final static String name = "name";
 
 	public static void main(String[] args) throws JsonProcessingException, IOException {
         ObjectMapper mapper = new ObjectMapper();
@@ -21,7 +20,7 @@ public class jsonTreeParserMain {
         // a.Count the number of objects in the tree.
         System.out.println("Number of nodes: "+ countNodes(root));
         // b.Find how many objects are under Dan Dan?
-        System.out.println("Number of nodes under Dan Dan: "+ countNodesUnderName(root,"Dan Dan"));
+        System.out.println("Number of nodes under Dan Dan: "+ countNodesUnderNode(root,"Dan Dan","name"));
         // c.Count how many different job titles we have in the 
         // JSON and how many people are from each job title.
         countNodesFieldsFrequency(root,"title");        
@@ -44,26 +43,26 @@ public class jsonTreeParserMain {
 	      return nodes;	      
 	  }	 
 	  
-	  private static int countNodesUnderName(JsonNode root, String name) {
-		return countNodesUnderName(root,name,false) - 1;
+	  private static int countNodesUnderNode(JsonNode root, String name, String fieldName) {
+		return countNodesUnderNode(root,name,fieldName,false) - 1;
 	  }	
 	
-	  private static int countNodesUnderName(JsonNode node,String fieldName,boolean count) {
+	  private static int countNodesUnderNode(JsonNode node, String name, String fieldName, boolean count) {
 		  if(node == null)return -1;
 		  int nodes=count?1:0;
 		  
 	      if (node.getNodeType() == JsonNodeType.ARRAY) {	    	  
 		      for (JsonNode jsonArrayNode : node) {
-		        	  nodes+=countNodesUnderName(jsonArrayNode,fieldName,count);
+		        	  nodes+= countNodesUnderNode(jsonArrayNode,name,fieldName,count);
 		      }	    	  
 	      } 	      
 	      if (node.getNodeType() == JsonNodeType.OBJECT) {		    	 
 		      if(count == false) {
-		    	  count=fieldName.equals(node.get(name).asText());
+		    	  count=name.equals(node.get(fieldName).asText());
 		      }		      
 		      JsonNode children = getChildren(node);
 		      if (children!=null) {
-		    	  nodes=countNodesUnderName(children,fieldName,count);
+		    	  nodes= countNodesUnderNode(children,name, fieldName,count);
 	          }	  	      
 	      }	      	      
 	      return nodes;
